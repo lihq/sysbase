@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/MonitorMetrics/base/cpu"
 	"github.com/MonitorMetrics/base/disk"
 	"github.com/MonitorMetrics/base/mem"
 	"github.com/MonitorMetrics/base/net"
+	"github.com/MonitorMetrics/base/top"
 )
 
 func main() {
@@ -18,22 +20,33 @@ func main() {
 		all = append(all, result...)
 	}
 
-	result, _ = metricsDisk.Gets()
+	result, err = metricsDisk.Gets()
 	if err != nil {
 	} else {
 		all = append(all, result...)
 	}
 
-	result, _ = metricsMem.Gets()
+	result, err = metricsMem.Gets()
 	if err != nil {
 	} else {
 		all = append(all, result...)
 	}
 
-	ipaddrs, _ := metricsNet.GetLANIpAddrs()
-	fmt.Println(ipaddrs)
-	for _, item := range all {
-		fmt.Println(fmt.Sprintf("%s %v %v", item["k"], item["v"], item["t"]))
+	result, err = metricsTop.Gets()
+	if err != nil {
+		log.Println("metricsTop.Gets failed", err)
+	} else {
+		all = append(all, result...)
+	}
+
+	ipaddrs, err := metricsNet.GetLANIpAddrs()
+	if err != nil {
+		log.Println("metricsNet.GetLANIpAddrs failed", err)
+	} else {
+		fmt.Println(ipaddrs)
+		for _, item := range all {
+			fmt.Println(fmt.Sprintf("%s %v %v", item["k"], item["v"], item["t"]))
+		}
 	}
 
 }
