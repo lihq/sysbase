@@ -1,7 +1,11 @@
 package metricsNet
 
+import (
+	"github.com/MonitorMetrics/base/models"
+)
+
 // TBD.
-func Gets() (result []map[string]interface{}, err error) {
-	m := []map[string]interface{}{}
-	return m, nil
+func Gets() (result []datapoint.DataPoint, err error) {
+	points := []datapoint.DataPoint{}
+	return points, nil
 }

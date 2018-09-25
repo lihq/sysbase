@@ -9,10 +9,14 @@ import (
 	"github.com/MonitorMetrics/base/mem"
 	"github.com/MonitorMetrics/base/net"
 	"github.com/MonitorMetrics/base/top"
+
+	"github.com/MonitorMetrics/base/models"
 )
 
 func main() {
-	all := []map[string]interface{}{}
+	log.SetFlags(log.Ldate | log.Ltime | log.Llongfile)
+
+	all := []datapoint.DataPoint{}
 
 	result, err := metricsCPU.Gets()
 	if err != nil {
@@ -45,7 +49,7 @@ func main() {
 	} else {
 		fmt.Println(ipaddrs)
 		for _, item := range all {
-			fmt.Println(fmt.Sprintf("%s %v %v", item["k"], item["v"], item["t"]))
+			fmt.Println(item)
 		}
 	}
 

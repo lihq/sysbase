@@ -3,19 +3,24 @@ package metricsMem
 import (
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/MonitorMetrics/base/helpers"
+	"github.com/MonitorMetrics/base/models"
 )
 
-func Gets() (result []map[string]interface{}, err error) {
-	m := []map[string]interface{}{}
+func Gets() (result []datapoint.DataPoint, err error) {
+	points := []datapoint.DataPoint{}
 	cmd := `free -b`
 
 	timeoutInSeconds := 1
 	out, err := helpers.ExecCommand(cmd, timeoutInSeconds)
 	if err != nil {
-		return m, err
+		return points, err
 	}
+
+	now := time.Now()
+	var p datapoint.DataPoint
 
 	for _, line := range strings.Split(string(out), "\n") {
 		line = strings.TrimSpace(line)
@@ -59,18 +64,22 @@ func Gets() (result []map[string]interface{}, err error) {
 			usedPercent = int64(float64(used) / float64(total) * 100)
 		}
 
-		m = append(m, map[string]interface{}{
-			"k": keyPrefix + ".total",
-			"v": total,
-		})
+		p = datapoint.DataPoint{}
+		p.Metric = keyPrefix + ".total"
+		p.ContentType = datapoint.ContentTypeGauge
+		p.Value = total
+		p.Timestamp = now
+		points = append(points, p)
 
-		m = append(m, map[string]interface{}{
-			"k": keyPrefix + ".used.percent",
-			"v": usedPercent,
-		})
+		p = datapoint.DataPoint{}
+		p.Metric = keyPrefix + ".used.percent"
+		p.ContentType = datapoint.ContentTypeGauge
+		p.Value = usedPercent
+		p.Timestamp = now
+		points = append(points, p)
 
 	}
 
-	return m, nil
+	return points, nil
 
 }

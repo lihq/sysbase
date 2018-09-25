@@ -6,8 +6,10 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/MonitorMetrics/base/helpers"
+	"github.com/MonitorMetrics/base/models"
 )
 
 const (
@@ -16,8 +18,8 @@ const (
 	linesTopN       = 10
 )
 
-func Gets() ([]map[string]interface{}, error) {
-	empty := []map[string]interface{}{}
+func Gets() ([]datapoint.DataPoint, error) {
+	points := []datapoint.DataPoint{}
 
 	timeoutInSeconds := 4
 
@@ -26,22 +28,23 @@ func Gets() ([]map[string]interface{}, error) {
 	out, err := helpers.ExecCommand(cmdStr, timeoutInSeconds)
 	if err != nil {
 		log.Println("helpers.ExecCommand failed", err)
-		return empty, err
+		return points, err
 	}
-	fmt.Println(string(out))
 
-	m := parseOutput(out)
-
-	return m, nil
+	points = parseOutput(out)
+	return points, nil
 
 }
 
-func parseOutput(output []byte) []map[string]interface{} {
-	m := []map[string]interface{}{}
+func parseOutput(output []byte) []datapoint.DataPoint {
+	points := []datapoint.DataPoint{}
 
 	lines := strings.Split(string(output), "\n")
+
+	now := time.Now()
+	var p datapoint.DataPoint
 	for lineno, line := range lines {
-		if lineno < linesHeader-1 {
+		if lineno < linesHeader+1 {
 			continue
 		}
 
@@ -74,29 +77,34 @@ func parseOutput(output []byte) []map[string]interface{} {
 		procCMD := columns[11]
 		procName := parseProcName(procCMD)
 
-		m = append(m, map[string]interface{}{
-			"k": "top.cpu",
-			"v": percentCpu,
-			"t": map[string]interface{}{
-				"cmd":  procCMD,
-				"proc": procName,
-				"no":   lineno - linesHeader,
-			},
-		})
+		p = datapoint.DataPoint{}
+		p.Metric = "top.cpu"
+		p.ContentType = datapoint.ContentTypeGauge
+		p.Value = percentCpu
+		p.Timestamp = now
+		p.Tags = map[string]interface{}{
+			"cmd":  procCMD,
+			"proc": procName,
+			"no":   lineno - linesHeader,
+		}
+		points = append(points, p)
 
-		m = append(m, map[string]interface{}{
-			"k": "top.mem",
-			"v": percentMem,
-			"t": map[string]interface{}{
-				"cmd":  procCMD,
-				"proc": procName,
-				"no":   lineno - linesHeader,
-			},
-		})
+		p = datapoint.DataPoint{}
+		p.Metric = "top.mem"
+		p.ContentType = datapoint.ContentTypeGauge
+		p.Value = percentMem
+		p.Timestamp = now
+		p.Tags = map[string]interface{}{
+			"cmd":  procCMD,
+			"proc": procName,
+			"no":   lineno - linesHeader,
+		}
+
+		points = append(points, p)
 
 	}
 
-	return m
+	return points
 
 }
 

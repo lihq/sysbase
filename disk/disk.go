@@ -4,8 +4,10 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/MonitorMetrics/base/helpers"
+	"github.com/MonitorMetrics/base/models"
 )
 
 const (
@@ -16,16 +18,19 @@ const (
 	TB = 1024 * GB
 )
 
-func Gets() (result []map[string]interface{}, err error) {
-	m := []map[string]interface{}{}
+func Gets() (result []datapoint.DataPoint, err error) {
+	points := []datapoint.DataPoint{}
 
 	cmd := `df -h |grep --color=never '^/dev'`
 
 	timeoutInSeconds := 1
 	out, err := helpers.ExecCommand(cmd, timeoutInSeconds)
 	if err != nil {
-		return m, err
+		return points, err
 	}
+
+	var p datapoint.DataPoint
+	now := time.Now()
 
 	for _, line := range strings.Split(string(out), "\n") {
 		line = strings.TrimSpace(line)
@@ -88,25 +93,28 @@ func Gets() (result []map[string]interface{}, err error) {
 			usedPercent = int64(usedPercentUint)
 		}
 
-		m = append(m, map[string]interface{}{
-			"k": "disk.total",
-			"v": sizeBytes,
-			"t": map[string]interface{}{
-				"src": fs,
-				"dst": mountedOn,
-			},
-		})
+		p = datapoint.DataPoint{}
+		p.Metric = "disk.total"
+		p.ContentType = datapoint.ContentTypeGauge
+		p.Value = sizeBytes
+		p.Timestamp = now
+		p.Tags = map[string]interface{}{
+			"src": fs,
+			"dst": mountedOn,
+		}
+		points = append(points, p)
 
-		m = append(m, map[string]interface{}{
-			"k": "disk.used.percent",
-			"v": usedPercent,
-			"t": map[string]interface{}{
-				"src": fs,
-				"dst": mountedOn,
-			},
-		})
-
+		p = datapoint.DataPoint{}
+		p.Metric = "disk.used.percent"
+		p.ContentType = datapoint.ContentTypeGauge
+		p.Value = usedPercent
+		p.Timestamp = now
+		p.Tags = map[string]interface{}{
+			"src": fs,
+			"dst": mountedOn,
+		}
+		points = append(points, p)
 	}
 
-	return m, nil
+	return points, nil
 }
