@@ -23,7 +23,7 @@ func Gets() ([]datapoint.DataPoint, error) {
 
 	timeoutInSeconds := 4
 
-	cmdStr := fmt.Sprintf(`top -c -b -d 3 -n 1 | head -n %d`, linesHeader+linesTopN+1)
+	cmdStr := fmt.Sprintf(`top -c -b -d 3 -n 1`)
 
 	out, err := helpers.ExecCommand(cmdStr, timeoutInSeconds)
 	if err != nil {
@@ -43,6 +43,7 @@ func parseOutput(output []byte) []datapoint.DataPoint {
 
 	now := time.Now()
 	var p datapoint.DataPoint
+	n := 0
 	for lineno, line := range lines {
 		if lineno < linesHeader+1 {
 			continue
@@ -77,15 +78,19 @@ func parseOutput(output []byte) []datapoint.DataPoint {
 		procCMD := columns[11]
 		procName := parseProcName(procCMD)
 
+		// skip kernel related processes
+		if strings.Index(procName, "[") != -1 {
+			continue
+		}
+
 		p = datapoint.DataPoint{}
 		p.Metric = "top.cpu"
 		p.ContentType = datapoint.ContentTypeGauge
 		p.Value = percentCpu
 		p.Timestamp = now
 		p.Tags = map[string]interface{}{
-			"cmd":  procCMD,
 			"proc": procName,
-			"no":   lineno - linesHeader,
+			//"no":   n,
 		}
 		points = append(points, p)
 
@@ -95,12 +100,16 @@ func parseOutput(output []byte) []datapoint.DataPoint {
 		p.Value = percentMem
 		p.Timestamp = now
 		p.Tags = map[string]interface{}{
-			"cmd":  procCMD,
 			"proc": procName,
-			"no":   lineno - linesHeader,
+			//"no":   n,
 		}
 
 		points = append(points, p)
+
+		n += 1
+		if n >= linesTopN {
+			break
+		}
 
 	}
 
