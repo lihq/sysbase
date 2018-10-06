@@ -10,14 +10,6 @@ import (
 	"github.com/MonitorMetrics/base/models"
 )
 
-const (
-	B  = 1
-	KB = 1024 * B
-	MB = 1024 * KB
-	GB = 1024 * MB
-	TB = 1024 * GB
-)
-
 func Gets() (result []datapoint.DataPoint, err error) {
 	points := []datapoint.DataPoint{}
 
@@ -55,31 +47,8 @@ func Gets() (result []datapoint.DataPoint, err error) {
 		sizeBytes := int64(-1)
 		usedPercent := int64(-1)
 
-		if strings.HasSuffix(size, "M") {
-			prefix := strings.TrimRight(size, "M")
-			sizeFloat, err := strconv.ParseFloat(prefix, 32)
-			if err != nil {
-				continue
-			}
-			sizeBytes = int64(sizeFloat) * MB
-
-		} else if strings.HasSuffix(size, "G") {
-			prefix := strings.TrimRight(size, "G")
-			sizeFloat, err := strconv.ParseFloat(prefix, 32)
-			if err != nil {
-				continue
-			}
-			sizeBytes = int64(sizeFloat) * GB
-
-		} else if strings.HasSuffix(size, "T") {
-			prefix := strings.TrimRight(size, "T")
-			sizeFloat, err := strconv.ParseFloat(prefix, 32)
-			if err != nil {
-				continue
-			}
-			sizeBytes = int64(sizeFloat) * TB
-
-		} else {
+		sizeBytes, err := helpers.ParseSize(size)
+		if err != nil {
 			log.Println("parse df size failed")
 			continue
 		}
@@ -110,8 +79,9 @@ func Gets() (result []datapoint.DataPoint, err error) {
 		p.Value = usedPercent
 		p.Timestamp = now
 		p.Tags = map[string]interface{}{
-			"src": fs,
-			"dst": mountedOn,
+			"src":   fs,
+			"dst":   mountedOn,
+			"total": size,
 		}
 		points = append(points, p)
 	}

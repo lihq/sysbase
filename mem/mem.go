@@ -76,6 +76,10 @@ func Gets() (result []datapoint.DataPoint, err error) {
 		p.ContentType = datapoint.ContentTypeGauge
 		p.Value = usedPercent
 		p.Timestamp = now
+		_total := helpers.Format4HumanSize(float64(total))
+		p.Tags = map[string]interface{}{
+			"total": _total,
+		}
 		points = append(points, p)
 
 	}
