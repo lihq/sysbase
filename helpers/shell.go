@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// ExecCommand runs shell command with timeout and without ENV COLUMNS=80 limit.
 func ExecCommand(cmdString string, timeoutInSeconds int) (out []byte, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutInSeconds)*time.Second)
 	defer cancel()
