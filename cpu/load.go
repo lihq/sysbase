@@ -1,3 +1,4 @@
+// package metricsCPU implements collect CPU related monitor metrics.
 package metricsCPU
 
 import (
@@ -12,6 +13,7 @@ import (
 	"github.com/MonitorMetrics/base/models"
 )
 
+// Gets returns load.{1,5,15}min from /proc/loadavg.
 func Gets() (result []datapoint.DataPoint, err error) {
 	points := []datapoint.DataPoint{}
 

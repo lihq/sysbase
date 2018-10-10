@@ -46,7 +46,6 @@ var privateRanges = []ipRange{
 	},
 }
 
-// isPrivateSubnet - check to see if this ip is in a private subnet
 func isPrivateSubnet(ipAddress net.IP) bool {
 	// my use case is only concerned with ipv4 atm
 	if ipCheck := ipAddress.To4(); ipCheck != nil {
@@ -61,6 +60,7 @@ func isPrivateSubnet(ipAddress net.IP) bool {
 	return false
 }
 
+// GetLANIpAddrs returns all IPv4 private subnet IP addresses.
 func GetLANIpAddrs() (result []string, err error) {
 	m := []string{}
 	addrs, err := net.InterfaceAddrs()
@@ -70,8 +70,28 @@ func GetLANIpAddrs() (result []string, err error) {
 
 	for _, address := range addrs {
 		// check the address type and if it is not a loopback the display it
-		//if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() && !isPrivateSubnet(ipnet.IP) {
 		if ipnet, ok := address.(*net.IPNet); ok && isPrivateSubnet(ipnet.IP) {
+			if ipnet.IP.To4() != nil {
+				ipAddr := ipnet.IP.String()
+				m = append(m, ipAddr)
+			}
+		}
+	}
+
+	return m, nil
+}
+
+// GetWANIpAddrs returns all IPv4 non-private subnet IP addresses.
+func GetWANIpAddrs() (result []string, err error) {
+	m := []string{}
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return m, err
+	}
+
+	for _, address := range addrs {
+		// check the address type and if it is not a loopback the display it
+		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() && !isPrivateSubnet(ipnet.IP) {
 			if ipnet.IP.To4() != nil {
 				ipAddr := ipnet.IP.String()
 				m = append(m, ipAddr)

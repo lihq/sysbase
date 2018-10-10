@@ -1,3 +1,4 @@
+// package metricsMem implements collect memory related monitor metrics.
 package metricsMem
 
 import (
@@ -9,6 +10,7 @@ import (
 	"github.com/MonitorMetrics/base/models"
 )
 
+// Gets returns memory total bytes and used percent from `free -b`.
 func Gets() (result []datapoint.DataPoint, err error) {
 	points := []datapoint.DataPoint{}
 	cmd := `free -b`

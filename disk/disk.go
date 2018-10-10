@@ -1,3 +1,4 @@
+// package metricsDisk implements collect harddisk related monitor metrics.
 package metricsDisk
 
 import (
@@ -10,6 +11,7 @@ import (
 	"github.com/MonitorMetrics/base/models"
 )
 
+// Gets returns disk total bytes and used percent from `df -h`.
 func Gets() (result []datapoint.DataPoint, err error) {
 	points := []datapoint.DataPoint{}
 
@@ -44,7 +46,7 @@ func Gets() (result []datapoint.DataPoint, err error) {
 		usedPercentStr := fields[4]
 		mountedOn := fields[5]
 
-		sizeBytes := int64(-1)
+		sizeBytes := float64(-1)
 		usedPercent := int64(-1)
 
 		sizeBytes, err := helpers.ParseSize(size)

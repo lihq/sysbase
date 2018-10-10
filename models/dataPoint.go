@@ -1,3 +1,4 @@
+// package datapoint implements monitor metric model walk around issue about complex nest JSON Object serialization.
 package datapoint
 
 import (
@@ -12,6 +13,7 @@ const (
 	ContentTypeReversed = 4
 )
 
+// DataPoint implements monitor metric model.
 type DataPoint struct {
 	Endpoint    string                 `json:"-" db:"endpoint"`
 	ContentType uint8                  `json:"-" db:"ContentType"`
@@ -21,6 +23,7 @@ type DataPoint struct {
 	Timestamp   time.Time              `json:"ts" db:"ts"`
 }
 
+// MarshalJSON converts timestamp value from time.Time into int64.
 func (this *DataPoint) MarshalJSON() ([]byte, error) {
 	type Alias DataPoint
 	return json.Marshal(&struct {
@@ -32,6 +35,7 @@ func (this *DataPoint) MarshalJSON() ([]byte, error) {
 	})
 }
 
+// Tags2str converts map[...]... to string.
 func (this *DataPoint) Tags2str() (result string) {
 	out, err := json.Marshal(this.Tags)
 	if err != nil {

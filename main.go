@@ -1,3 +1,4 @@
+// Example collect all system base monitor metrics.
 package main
 
 import (
@@ -43,14 +44,22 @@ func main() {
 		all = append(all, result...)
 	}
 
+	for _, item := range all {
+		fmt.Println(item)
+	}
+
 	ipaddrs, err := metricsNet.GetLANIpAddrs()
 	if err != nil {
 		log.Println("metricsNet.GetLANIpAddrs failed", err)
 	} else {
 		fmt.Println(ipaddrs)
-		for _, item := range all {
-			fmt.Println(item)
-		}
+	}
+
+	ipaddrs, err = metricsNet.GetWANIpAddrs()
+	if err != nil {
+		log.Println("metricsNet.GetWANIpAddrsfailed", err)
+	} else {
+		fmt.Println(ipaddrs)
 	}
 
 }

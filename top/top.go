@@ -18,6 +18,7 @@ const (
 	linesTopN       = 10
 )
 
+// Gets returns CPU and memory usage from `top`.
 func Gets() ([]datapoint.DataPoint, error) {
 	points := []datapoint.DataPoint{}
 
