@@ -4,6 +4,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/MonitorMetrics/base/cpu"
 	"github.com/MonitorMetrics/base/disk"
@@ -40,6 +41,15 @@ func main() {
 	result, err = metricsTop.Gets()
 	if err != nil {
 		log.Println("metricsTop.Gets failed", err)
+	} else {
+		all = append(all, result...)
+	}
+
+	metricsNet.Gets()
+	time.Sleep(time.Duration(1) * time.Second)
+	result, err = metricsNet.Gets()
+	if err != nil {
+		log.Println("metricsNet.Gets failed", err)
 	} else {
 		all = append(all, result...)
 	}
