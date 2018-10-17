@@ -24,7 +24,6 @@ func Gets() (result []datapoint.DataPoint, err error) {
 		p.Metric = "net.in.packets"
 		p.ContentType = datapoint.ContentTypeDiff
 		p.Value = netdev.RxPackets
-		p.Timestamp = netdev.Ts
 		p.Tags = map[string]interface{}{
 			"face": netdev.Face,
 		}
@@ -34,7 +33,6 @@ func Gets() (result []datapoint.DataPoint, err error) {
 		p.Metric = "net.in.bytes"
 		p.ContentType = datapoint.ContentTypeDiff
 		p.Value = netdev.RxBytes
-		p.Timestamp = netdev.Ts
 		p.Tags = map[string]interface{}{
 			"face": netdev.Face,
 		}
@@ -44,7 +42,6 @@ func Gets() (result []datapoint.DataPoint, err error) {
 		p.Metric = "net.in.errs"
 		p.ContentType = datapoint.ContentTypeDiff
 		p.Value = netdev.RxErrs
-		p.Timestamp = netdev.Ts
 		p.Tags = map[string]interface{}{
 			"face": netdev.Face,
 		}
@@ -54,7 +51,6 @@ func Gets() (result []datapoint.DataPoint, err error) {
 		p.Metric = "net.in.drop"
 		p.ContentType = datapoint.ContentTypeDiff
 		p.Value = netdev.RxDrop
-		p.Timestamp = netdev.Ts
 		p.Tags = map[string]interface{}{
 			"face": netdev.Face,
 		}
@@ -65,7 +61,6 @@ func Gets() (result []datapoint.DataPoint, err error) {
 		p.Metric = "net.out.packets"
 		p.ContentType = datapoint.ContentTypeDiff
 		p.Value = netdev.TxPackets
-		p.Timestamp = netdev.Ts
 		p.Tags = map[string]interface{}{
 			"face": netdev.Face,
 		}
@@ -75,7 +70,6 @@ func Gets() (result []datapoint.DataPoint, err error) {
 		p.Metric = "net.out.bytes"
 		p.ContentType = datapoint.ContentTypeDiff
 		p.Value = netdev.TxBytes
-		p.Timestamp = netdev.Ts
 		p.Tags = map[string]interface{}{
 			"face": netdev.Face,
 		}
@@ -85,7 +79,6 @@ func Gets() (result []datapoint.DataPoint, err error) {
 		p.Metric = "net.out.errs"
 		p.ContentType = datapoint.ContentTypeDiff
 		p.Value = netdev.TxErrs
-		p.Timestamp = netdev.Ts
 		p.Tags = map[string]interface{}{
 			"face": netdev.Face,
 		}
@@ -95,7 +88,6 @@ func Gets() (result []datapoint.DataPoint, err error) {
 		p.Metric = "net.out.drop"
 		p.ContentType = datapoint.ContentTypeDiff
 		p.Value = netdev.TxDrop
-		p.Timestamp = netdev.Ts
 		p.Tags = map[string]interface{}{
 			"face": netdev.Face,
 		}

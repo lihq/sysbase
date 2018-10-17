@@ -4,7 +4,6 @@ import (
 	"log"
 	"strconv"
 	"strings"
-	"time"
 )
 
 type NetDev struct {
@@ -19,14 +18,6 @@ type NetDev struct {
 	TxBytes   uint64
 	TxErrs    uint64
 	TxDrop    uint64
-
-	Ts time.Time
-}
-
-func NewNetDev() NetDev {
-	n := NetDev{}
-	n.Ts = time.Now()
-	return n
 }
 
 var LastNetDevs = map[string]NetDev{}
@@ -58,7 +49,7 @@ func ParseProcNetDev(output string) []NetDev {
 			continue
 		}
 
-		netdev := NewNetDev()
+		netdev := NetDev{}
 		netdev.Face = face
 
 		// RX/in
@@ -122,10 +113,7 @@ func ApplyDiff(netDevs *[]NetDev) {
 			(*netDevs)[idx].TxBytes = (*netDevs)[idx].TxBytes - netdevOld.TxBytes
 			(*netDevs)[idx].TxErrs = (*netDevs)[idx].TxErrs - netdevOld.TxErrs
 			(*netDevs)[idx].TxDrop = (*netDevs)[idx].TxDrop - netdevOld.TxDrop
-
 		} else {
-			LastNetDevs[netdev.Face] = netdev
-
 			(*netDevs)[idx].RxPackets = 0
 			(*netDevs)[idx].RxBytes = 0
 			(*netDevs)[idx].RxErrs = 0
@@ -136,5 +124,7 @@ func ApplyDiff(netDevs *[]NetDev) {
 			(*netDevs)[idx].TxErrs = 0
 			(*netDevs)[idx].TxDrop = 0
 		}
+		LastNetDevs[netdev.Face] = netdev
+
 	}
 }
