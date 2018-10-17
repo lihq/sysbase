@@ -6,7 +6,6 @@ import (
 	"path"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/MonitorMetrics/base/helpers"
 	"github.com/MonitorMetrics/base/models"
@@ -42,7 +41,6 @@ func parseOutput(output []byte) []datapoint.DataPoint {
 
 	lines := strings.Split(string(output), "\n")
 
-	now := time.Now()
 	var p datapoint.DataPoint
 	n := 0
 	for lineno, line := range lines {
@@ -88,7 +86,6 @@ func parseOutput(output []byte) []datapoint.DataPoint {
 		p.Metric = "top.cpu"
 		p.ContentType = datapoint.ContentTypeGauge
 		p.Value = percentCpu
-		p.Timestamp = now
 		p.Tags = map[string]interface{}{
 			"proc": procName,
 			//"no":   n,
@@ -99,7 +96,6 @@ func parseOutput(output []byte) []datapoint.DataPoint {
 		p.Metric = "top.mem"
 		p.ContentType = datapoint.ContentTypeGauge
 		p.Value = percentMem
-		p.Timestamp = now
 		p.Tags = map[string]interface{}{
 			"proc": procName,
 			//"no":   n,

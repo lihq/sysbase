@@ -4,7 +4,6 @@ package metricsMem
 import (
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/MonitorMetrics/base/helpers"
 	"github.com/MonitorMetrics/base/models"
@@ -21,7 +20,6 @@ func Gets() (result []datapoint.DataPoint, err error) {
 		return points, err
 	}
 
-	now := time.Now()
 	var p datapoint.DataPoint
 
 	for _, line := range strings.Split(string(out), "\n") {
@@ -70,14 +68,12 @@ func Gets() (result []datapoint.DataPoint, err error) {
 		p.Metric = keyPrefix + ".total"
 		p.ContentType = datapoint.ContentTypeGauge
 		p.Value = total
-		p.Timestamp = now
 		points = append(points, p)
 
 		p = datapoint.DataPoint{}
 		p.Metric = keyPrefix + ".used.percent"
 		p.ContentType = datapoint.ContentTypeGauge
 		p.Value = usedPercent
-		p.Timestamp = now
 		_total := helpers.Format4HumanSize(float64(total))
 		p.Tags = map[string]interface{}{
 			"total": _total,

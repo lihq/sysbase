@@ -8,7 +8,6 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/MonitorMetrics/base/models"
 )
@@ -30,7 +29,6 @@ func Gets() (result []datapoint.DataPoint, err error) {
 	fields := strings.Fields(string(b))
 
 	var p datapoint.DataPoint
-	now := time.Now()
 
 	if loadMin1, err := strconv.ParseFloat(fields[0], 64); err != nil {
 		return points, err
@@ -39,7 +37,6 @@ func Gets() (result []datapoint.DataPoint, err error) {
 		p.ContentType = datapoint.ContentTypeGauge
 		p.Metric = "load.1min"
 		p.Value = loadMin1
-		p.Timestamp = now
 		points = append(points, p)
 	}
 
@@ -50,7 +47,6 @@ func Gets() (result []datapoint.DataPoint, err error) {
 		p.ContentType = datapoint.ContentTypeGauge
 		p.Metric = "load.5min"
 		p.Value = loadMin5
-		p.Timestamp = now
 		points = append(points, p)
 	}
 
@@ -61,7 +57,6 @@ func Gets() (result []datapoint.DataPoint, err error) {
 		p.ContentType = datapoint.ContentTypeGauge
 		p.Metric = "load.15min"
 		p.Value = loadMin15
-		p.Timestamp = now
 		points = append(points, p)
 	}
 

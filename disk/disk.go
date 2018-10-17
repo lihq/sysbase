@@ -2,8 +2,6 @@
 package metricsDisk
 
 import (
-	"time"
-
 	"github.com/MonitorMetrics/base/helpers"
 	"github.com/MonitorMetrics/base/models"
 )
@@ -11,7 +9,6 @@ import (
 // Gets returns disk total bytes and used percent from `df -h` and %util from `iostat`(sysstat).
 func Gets() (result []datapoint.DataPoint, err error) {
 	points := []datapoint.DataPoint{}
-	now := time.Now()
 
 	var cmd string
 	var out []byte
@@ -30,7 +27,6 @@ func Gets() (result []datapoint.DataPoint, err error) {
 		p.Metric = "disk.total"
 		p.ContentType = datapoint.ContentTypeGauge
 		p.Value = df.SizeInBytes
-		p.Timestamp = now
 		p.Tags = map[string]interface{}{
 			"src": df.Filesystem,
 			"dst": df.MountedOn,
@@ -41,7 +37,6 @@ func Gets() (result []datapoint.DataPoint, err error) {
 		p.Metric = "disk.used.percent"
 		p.ContentType = datapoint.ContentTypeGauge
 		p.Value = df.UsedPercent
-		p.Timestamp = now
 		p.Tags = map[string]interface{}{
 			"src":   df.Filesystem,
 			"dst":   df.MountedOn,
@@ -58,7 +53,6 @@ func Gets() (result []datapoint.DataPoint, err error) {
 		p.Metric = "disk.util"
 		p.ContentType = datapoint.ContentTypeGauge
 		p.Value = iostat.Util
-		p.Timestamp = now
 		p.Tags = map[string]interface{}{
 			"device": iostat.Device,
 		}
