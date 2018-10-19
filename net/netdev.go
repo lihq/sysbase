@@ -4,6 +4,8 @@ import (
 	"log"
 	"strconv"
 	"strings"
+
+	"github.com/MonitorMetrics/base/helpers"
 )
 
 type NetDev struct {
@@ -22,7 +24,7 @@ type NetDev struct {
 
 var LastNetDevs = map[string]NetDev{}
 
-func ParseProcNetDev(output string) []NetDev {
+func ParseProcNetDev(output string, facesWhitelist []string) []NetDev {
 	var netDevs []NetDev
 	var err error
 
@@ -46,6 +48,10 @@ func ParseProcNetDev(output string) []NetDev {
 
 		face := strings.TrimSuffix(fields[0], ":")
 		if face == "lo" {
+			continue
+		}
+
+		if !helpers.StringInSlice(face, facesWhitelist) {
 			continue
 		}
 
@@ -127,4 +133,26 @@ func ApplyDiff(netDevs *[]NetDev) {
 		LastNetDevs[netdev.Face] = netdev
 
 	}
+}
+
+// GetAliveIfaces returns alive network interfaces, it does not contains interface aliases.
+func GetAliveIfaces() ([]string, error) {
+	result := []string{}
+	timeoutInSeconds := 1
+	cmd := `ifconfig |grep --color=never -o ^[a-z0-9]*`
+	b, err := helpers.ExecCommand(cmd, timeoutInSeconds)
+	if err != nil {
+		return result, err
+	}
+
+	for _, line := range strings.Split(string(b), "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+
+		result = append(result, line)
+	}
+
+	return result, nil
 }

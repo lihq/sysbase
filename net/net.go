@@ -14,7 +14,12 @@ func Gets() (result []datapoint.DataPoint, err error) {
 		return points, err
 	}
 
-	netDevs := ParseProcNetDev(string(b))
+	facesWhitelist, err := GetAliveIfaces()
+	if err != nil {
+		return points, err
+	}
+
+	netDevs := ParseProcNetDev(string(b), facesWhitelist)
 	ApplyDiff(&netDevs)
 
 	for _, netdev := range netDevs {
