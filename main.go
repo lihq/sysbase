@@ -22,18 +22,21 @@ func main() {
 
 	result, err := metricsCPU.Gets()
 	if err != nil {
+		log.Fatalln("metricsCPU.Gets", err)
 	} else {
 		all = append(all, result...)
 	}
 
 	result, err = metricsDisk.Gets()
 	if err != nil {
+		log.Fatalln("metricsCPU.Gets", err)
 	} else {
 		all = append(all, result...)
 	}
 
 	result, err = metricsMem.Gets()
 	if err != nil {
+		log.Fatalln("metricsMem.Gets", err)
 	} else {
 		all = append(all, result...)
 	}

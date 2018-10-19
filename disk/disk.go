@@ -15,7 +15,7 @@ func Gets() (result []datapoint.DataPoint, err error) {
 
 	timeoutInSeconds := 1
 	cmd = `df -h |grep --color=never '^/dev'`
-	out, err = helpers.ExecCommand(cmd, timeoutInSeconds)
+	out, err = helpers.ExecCommandQuitAfterTimeout(cmd, timeoutInSeconds)
 	if err != nil {
 		return points, err
 	}
