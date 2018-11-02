@@ -10,6 +10,8 @@ Linux 系统基础监控项采集实现。
 
 ## Usage
 
+    go get -u github.com/OpenCCTV/sys_base
+     
 For more detail, see main.go.
 
 
