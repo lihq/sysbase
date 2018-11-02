@@ -2,6 +2,9 @@ package metricsNet
 
 import (
 	"bytes"
+	"encoding/binary"
+	"errors"
+	"math"
 	"net"
 )
 
@@ -47,9 +50,8 @@ var privateRanges = []ipRange{
 }
 
 func isPrivateSubnet(ipAddress net.IP) bool {
-	// my use case is only concerned with ipv4 atm
+	// my use case is only concerned with ipv4
 	if ipCheck := ipAddress.To4(); ipCheck != nil {
-		// iterate over all our ranges
 		for _, r := range privateRanges {
 			// check if this ip is in a private range
 			if inRange(r, ipAddress) {
@@ -69,7 +71,6 @@ func GetLANIpAddrs() (result []string, err error) {
 	}
 
 	for _, address := range addrs {
-		// check the address type and if it is not a loopback the display it
 		if ipnet, ok := address.(*net.IPNet); ok && isPrivateSubnet(ipnet.IP) {
 			if ipnet.IP.To4() != nil {
 				ipAddr := ipnet.IP.String()
@@ -90,7 +91,6 @@ func GetWANIpAddrs() (result []string, err error) {
 	}
 
 	for _, address := range addrs {
-		// check the address type and if it is not a loopback the display it
 		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() && !isPrivateSubnet(ipnet.IP) {
 			if ipnet.IP.To4() != nil {
 				ipAddr := ipnet.IP.String()
@@ -100,4 +100,61 @@ func GetWANIpAddrs() (result []string, err error) {
 	}
 
 	return m, nil
+}
+
+// GetFirstIP returns the minimum (in uint32) one IPv4 address.
+// In most case, all machines connect to each other in internal network on production,
+// multiple machines maybe share a same LAN address such as 192.168.0.1, but share WAN IP will be conflict,
+// we prefer use WAN addr to LAN addr.
+func GetFirstIP() (string, error) {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return "", err
+	}
+
+	wans := []net.IP{}
+	lans := []net.IP{}
+
+	for _, address := range addrs {
+		if ipnet, ok := address.(*net.IPNet); ok {
+			if ipnet.IP.To4() == nil {
+				continue
+			}
+			if ipnet.IP.IsLoopback() {
+				continue
+			}
+
+			if isPrivateSubnet(ipnet.IP) {
+				lans = append(lans, ipnet.IP)
+			} else {
+				wans = append(wans, ipnet.IP)
+			}
+		}
+	}
+
+	minOne := uint32(math.MaxUint32)
+	for _, ip := range wans {
+		inUint32 := binary.BigEndian.Uint32(ip.To4())
+		if inUint32 < minOne {
+			minOne = inUint32
+		}
+	}
+
+	if minOne == uint32(math.MaxUint32) {
+		for _, ip := range lans {
+			inUint32 := binary.BigEndian.Uint32(ip.To4())
+
+			if inUint32 < minOne {
+				minOne = inUint32
+			}
+		}
+	}
+
+	if minOne < uint32(math.MaxUint32) {
+		ipByte := make([]byte, 4)
+		binary.BigEndian.PutUint32(ipByte, minOne)
+		return net.IP(ipByte).String(), nil
+	}
+
+	return "", errors.New("parse failed")
 }

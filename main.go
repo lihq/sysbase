@@ -61,18 +61,11 @@ func main() {
 		fmt.Println(item)
 	}
 
-	ipaddrs, err := metricsNet.GetLANIpAddrs()
+	ipaddr, err := metricsNet.GetFirstIP()
 	if err != nil {
-		log.Println("metricsNet.GetLANIpAddrs failed", err)
+		log.Println("metricsNet.GetFirstIP failed", err)
 	} else {
-		fmt.Println(ipaddrs)
-	}
-
-	ipaddrs, err = metricsNet.GetWANIpAddrs()
-	if err != nil {
-		log.Println("metricsNet.GetWANIpAddrsfailed", err)
-	} else {
-		fmt.Println(ipaddrs)
+		fmt.Println(ipaddr)
 	}
 
 }
