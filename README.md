@@ -1,8 +1,8 @@
 # About
 
-System base metrics.
+Linux system base monitor metrics collector.
 
-系统基础监控项采集实现。
+Linux 系统基础监控项采集实现。
 
 
 ## Network bandwidth
@@ -14,8 +14,24 @@ System base metrics.
      
 Grafana 配图用 order by ts asc，平时调试 SQL 用 order by ts desc。例：
 
+TimescaleDB SQL
+
     select date_trunc('minute', "ts") as time, metric, sum(value) from datapoints where metric='net.in.bytes' and tags->>'face'='enp0s3' group by ts, metric order by ts asc;
-    
+
+  
+Clickhouse SQL
+
+    SELECT
+        $timeSeries as t,
+        value as `net.in.bytes`
+    FROM $table
+    WHERE
+        $timeFilter
+        and endpoint= '$endpoint'
+        and metric = 'net.in.bytes'	
+        and visitParamExtractString(tags, 'face') = '$iface'
+    ORDER BY t
+
     
 查看网卡流量实时变化
 
