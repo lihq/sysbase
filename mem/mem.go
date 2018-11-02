@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/MonitorMetrics/base/helpers"
-	"github.com/MonitorMetrics/base/models"
+	"github.com/OpenCCTV/sys_base/helpers"
+	"github.com/OpenCCTV/sys_base/models"
 )
 
 // Gets returns memory total bytes and used percent from `free -b`.
