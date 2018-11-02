@@ -1,8 +1,16 @@
 # About
 
+Confirm to KISS principle.
+
 Linux system base monitor metrics collector.
 
 Linux 系统基础监控项采集实现。
+
+
+
+## Usage
+
+For more detail, see main.go.
 
 
 ## Network bandwidth
