@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/OpenCCTV/sys_base/models"
+	"github.com/OpenCCTV/sysbase/models"
 )
 
 // Gets returns load.{1,5,15}min from /proc/loadavg.

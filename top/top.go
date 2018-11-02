@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/OpenCCTV/sys_base/helpers"
-	"github.com/OpenCCTV/sys_base/models"
+	"github.com/OpenCCTV/sysbase/helpers"
+	"github.com/OpenCCTV/sysbase/models"
 )
 
 const (

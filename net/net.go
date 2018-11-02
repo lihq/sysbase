@@ -3,7 +3,7 @@ package metricsNet
 import (
 	"io/ioutil"
 
-	"github.com/OpenCCTV/sys_base/models"
+	"github.com/OpenCCTV/sysbase/models"
 )
 
 func Gets() (result []datapoint.DataPoint, err error) {

@@ -2,8 +2,8 @@
 package metricsDisk
 
 import (
-	"github.com/OpenCCTV/sys_base/helpers"
-	"github.com/OpenCCTV/sys_base/models"
+	"github.com/OpenCCTV/sysbase/helpers"
+	"github.com/OpenCCTV/sysbase/models"
 )
 
 // Gets returns disk total bytes and used percent from `df -h` and %util from `iostat`(sysstat).

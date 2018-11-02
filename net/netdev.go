@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/OpenCCTV/sys_base/helpers"
+	"github.com/OpenCCTV/sysbase/helpers"
 )
 
 type NetDev struct {

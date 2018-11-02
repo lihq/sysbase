@@ -6,13 +6,13 @@ import (
 	"log"
 	"time"
 
-	"github.com/OpenCCTV/sys_base/cpu"
-	"github.com/OpenCCTV/sys_base/disk"
-	"github.com/OpenCCTV/sys_base/mem"
-	"github.com/OpenCCTV/sys_base/net"
-	"github.com/OpenCCTV/sys_base/top"
+	"github.com/OpenCCTV/sysbase/cpu"
+	"github.com/OpenCCTV/sysbase/disk"
+	"github.com/OpenCCTV/sysbase/mem"
+	"github.com/OpenCCTV/sysbase/net"
+	"github.com/OpenCCTV/sysbase/top"
 
-	"github.com/OpenCCTV/sys_base/models"
+	"github.com/OpenCCTV/sysbase/models"
 )
 
 func main() {
