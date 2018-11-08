@@ -3,9 +3,13 @@ package metricsNet
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"math"
 	"net"
+	"net/http"
+	"time"
 )
 
 type ipRange struct {
@@ -102,6 +106,8 @@ func GetWANIpAddrs() (result []string, err error) {
 	return m, nil
 }
 
+var WANIpAddr string
+
 // GetFirstIP returns the minimum (in uint32) one IPv4 address.
 // In most case, all machines connect to each other in internal network on production,
 // multiple machines maybe share a same LAN address such as 192.168.0.1, but share WAN IP will be conflict,
@@ -132,6 +138,24 @@ func GetFirstIP() (string, error) {
 		}
 	}
 
+	if len(wans) == 0 {
+		if WANIpAddr == "" {
+			result, err := GuessWANIpAddr()
+			if err != nil {
+				return "", err
+			}
+
+			WANIpAddr = result
+		}
+
+		wanIP := net.ParseIP(WANIpAddr)
+		if wanIP == nil {
+			err = errors.New("net.ParseIP failed")
+			return "", err
+		}
+		wans = append(wans, wanIP)
+	}
+
 	minOne := uint32(math.MaxUint32)
 	for _, ip := range wans {
 		inUint32 := binary.BigEndian.Uint32(ip.To4())
@@ -157,4 +181,37 @@ func GetFirstIP() (string, error) {
 	}
 
 	return "", errors.New("parse failed")
+}
+
+// GuessWANIpAddr returns WAN IPv4 address from httpbin.org/ip.
+func GuessWANIpAddr() (result string, err error) {
+	timeout := time.Duration(2000) * time.Millisecond
+	client := http.Client{
+		Timeout: timeout,
+	}
+
+	resp, err := client.Get("http://httpbin.org/ip")
+
+	if err != nil {
+		return
+	}
+
+	bodyResp, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return
+	}
+
+	m := map[string]interface{}{}
+	err = json.Unmarshal(bodyResp, &m)
+	if err != nil {
+		return
+	}
+
+	result, ok := m["origin"].(string)
+	if !ok {
+		err = errors.New("parse field origin from response in JSON failed")
+		return
+	}
+
+	return
 }
