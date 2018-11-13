@@ -9,20 +9,18 @@ import (
 	"github.com/OpenCCTV/sysbase/models"
 )
 
-// Gets returns memory total bytes and used percent from `free -b`.
-func Gets() (result []datapoint.DataPoint, err error) {
-	points := []datapoint.DataPoint{}
-	cmd := `free -b`
+type StatMem struct {
+	MemTotal       int64
+	MemUsedPercent int64
 
-	timeoutInSeconds := 1
-	out, err := helpers.ExecCommand(cmd, timeoutInSeconds)
-	if err != nil {
-		return points, err
-	}
+	SwapTotal       int64
+	SwapUsedPercent int64
+}
 
-	var p datapoint.DataPoint
+func ParseOutputFree(output string) (StatMem, error) {
+	var sm StatMem
 
-	for _, line := range strings.Split(string(out), "\n") {
+	for _, line := range strings.Split(output, "\n") {
 		line = strings.TrimSpace(line)
 		if line == "" {
 			continue
@@ -53,34 +51,81 @@ func Gets() (result []datapoint.DataPoint, err error) {
 
 		total, err := strconv.ParseInt(totalStr, 10, 64)
 		if err != nil {
-			continue
+			return sm, err
 		}
 		used, err := strconv.ParseInt(usedStr, 10, 64)
 		if err != nil {
-			continue
+			return sm, err
 		}
 
 		if total > 0 {
 			usedPercent = int64(float64(used) / float64(total) * 100)
+		} else {
+			usedPercent = 0
 		}
 
-		p = datapoint.DataPoint{}
-		p.Metric = keyPrefix + ".total"
-		p.ContentType = datapoint.ContentTypeGauge
-		p.Value = total
-		points = append(points, p)
-
-		p = datapoint.DataPoint{}
-		p.Metric = keyPrefix + ".used.percent"
-		p.ContentType = datapoint.ContentTypeGauge
-		p.Value = usedPercent
-		_total := helpers.Format4HumanSize(float64(total))
-		p.Tags = map[string]interface{}{
-			"total": _total,
+		if keyPrefix == "mem" {
+			sm.MemTotal = total
+			sm.MemUsedPercent = usedPercent
+		} else if keyPrefix == "swap" {
+			sm.SwapTotal = total
+			sm.SwapUsedPercent = usedPercent
 		}
-		points = append(points, p)
-
 	}
+
+	return sm, nil
+}
+
+// Gets returns memory total bytes and used percent from `free -b`.
+func Gets() (result []datapoint.DataPoint, err error) {
+	points := []datapoint.DataPoint{}
+	cmd := `free -b`
+
+	timeoutInSeconds := 1
+	out, err := helpers.ExecCommand(cmd, timeoutInSeconds)
+	if err != nil {
+		return points, err
+	}
+
+	var p datapoint.DataPoint
+	var _total string
+
+	sm, err := ParseOutputFree(string(out))
+	if err != nil {
+		return points, err
+	}
+
+	p = datapoint.DataPoint{}
+	p.Metric = "mem.total"
+	p.ContentType = datapoint.ContentTypeGauge
+	p.Value = sm.MemTotal
+	points = append(points, p)
+
+	p = datapoint.DataPoint{}
+	p.Metric = "mem.used.percent"
+	p.ContentType = datapoint.ContentTypeGauge
+	p.Value = sm.MemUsedPercent
+	_total = helpers.Format4HumanSize(float64(sm.MemTotal))
+	p.Tags = map[string]interface{}{
+		"total": _total,
+	}
+	points = append(points, p)
+
+	p = datapoint.DataPoint{}
+	p.Metric = "swap.total"
+	p.ContentType = datapoint.ContentTypeGauge
+	p.Value = sm.SwapTotal
+	points = append(points, p)
+
+	p = datapoint.DataPoint{}
+	p.Metric = "swap.used.percent"
+	p.ContentType = datapoint.ContentTypeGauge
+	p.Value = sm.SwapUsedPercent
+	_total = helpers.Format4HumanSize(float64(sm.SwapTotal))
+	p.Tags = map[string]interface{}{
+		"total": _total,
+	}
+	points = append(points, p)
 
 	return points, nil
 
