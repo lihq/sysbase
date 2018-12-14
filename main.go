@@ -2,70 +2,38 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
 	"log"
-	"time"
 
-	"github.com/OpenCCTV/sysbase/cpu"
-	"github.com/OpenCCTV/sysbase/disk"
-	"github.com/OpenCCTV/sysbase/mem"
 	"github.com/OpenCCTV/sysbase/net"
-	"github.com/OpenCCTV/sysbase/top"
 
-	"github.com/OpenCCTV/sysbase/models"
+	"github.com/OpenCCTV/sysbase/utils"
 )
 
 func main() {
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
-	all := []datapoint.DataPoint{}
+	dataPoints := utils.GetMergeAll()
 
-	result, err := metricsCPU.Gets()
+	lans, err := metricsNet.GetLANIpAddrs()
 	if err != nil {
-		log.Fatalln("metricsCPU.Gets", err)
-	} else {
-		all = append(all, result...)
+		log.Fatalln(err)
+	}
+	wans, err := metricsNet.GetWANIpAddrs()
+	if err != nil {
+		log.Fatalln(err)
 	}
 
-	result, err = metricsDisk.Gets()
-	if err != nil {
-		log.Fatalln("metricsCPU.Gets", err)
-	} else {
-		all = append(all, result...)
+	result := map[string]interface{}{
+		"metrics": dataPoints,
+		"lans":    lans,
+		"wans":    wans,
 	}
-
-	result, err = metricsMem.Gets()
+	out, err := json.MarshalIndent(result, "", "  ")
 	if err != nil {
-		log.Fatalln("metricsMem.Gets", err)
+		log.Fatalln(err)
 	} else {
-		all = append(all, result...)
-	}
-
-	result, err = metricsTop.Gets()
-	if err != nil {
-		log.Println("metricsTop.Gets failed", err)
-	} else {
-		all = append(all, result...)
-	}
-
-	metricsNet.Gets()
-	time.Sleep(time.Duration(1) * time.Second)
-	result, err = metricsNet.Gets()
-	if err != nil {
-		log.Println("metricsNet.Gets failed", err)
-	} else {
-		all = append(all, result...)
-	}
-
-	for _, item := range all {
-		fmt.Println(item)
-	}
-
-	ipaddr, err := metricsNet.GetFirstIP()
-	if err != nil {
-		log.Println("metricsNet.GetFirstIP failed", err)
-	} else {
-		fmt.Println(ipaddr)
+		log.Println(string(out))
 	}
 
 }
